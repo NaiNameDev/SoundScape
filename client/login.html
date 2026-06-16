@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Вход и регистрация</title>
+</head>
+<body>
+    <h1>Регистрация и Вход</h1>
+    
+    <div id="status">⚫ Отключено от сервера</div>
+    <div id="messageArea"></div>
+    
+    <hr>
+    
+    <h2>Регистрация</h2>
+    <div>
+        <label>Логин:</label>
+        <input type="text" id="regUsername" placeholder="Введите логин">
+    </div>
+    <div>
+        <label>Пароль:</label>
+        <input type="password" id="regPassword" placeholder="Введите пароль">
+    </div>
+    <button onclick="register()">Зарегистрироваться</button>
+    
+    <hr>
+    
+    <h2>Вход</h2>
+    <div>
+        <label>Логин:</label>
+        <input type="text" id="loginUsername" placeholder="Введите логин">
+    </div>
+    <div>
+        <label>Пароль:</label>
+        <input type="password" id="loginPassword" placeholder="Введите пароль">
+    </div>
+    <button onclick="login()">Войти</button>
+    
+    <hr>
+    
+    <div>
+        <button onclick="checkConnection()">Проверить соединение</button>
+        <button onclick="clearMessages()">Очистить сообщения</button>
+    </div>
+    
+    <hr>
+    
+    <div>
+        <a href="/">На главную</a>
+    </div>
+
+    <script src="/static/login_test.js"></script>
+</body>
+</html>
