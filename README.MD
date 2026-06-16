@@ -30,3 +30,5 @@ python ./server/main.py
 
 архитектура сайта
 ![архитектура](images/arch.png)
+er-диограмма бд
+![диограмма](images/di.png)
