@@ -584,31 +584,17 @@
     }
 
     // Поиск
-		function setupSearch() {
-		  const searchInput = document.getElementById('searchInput');
-		  
-		  // При нажатии Enter переходим на страницу поиска
-		  searchInput.addEventListener('keydown', (e) => {
-			if (e.key === 'Enter') {
-			  const query = searchInput.value.trim();
-			  if (query) {
-				window.location.href = `/pages/search.html?q=${encodeURIComponent(query)}`;
-			  }
-			}
-		  });
-		  
-		  // При клике на иконку поиска тоже переходим
-		  const searchIcon = document.querySelector('.search-wrap svg');
-		  if (searchIcon) {
-			searchIcon.style.cursor = 'pointer';
-			searchIcon.addEventListener('click', () => {
-			  const query = searchInput.value.trim();
-			  if (query) {
-				window.location.href = `/pages/search.html?q=${encodeURIComponent(query)}`;
-			  }
-			});
-		  }
-		}
+    function setupSearch() {
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('input', debounce(() => {
+        const query = searchInput.value.trim();
+        if (query) {
+          searchTracks(query);
+        } else {
+          displayTracks(allTracks);
+        }
+      }, 300));
+    }
 
     function searchTracks(query) {
       fetch(`/api/tracks?search=${encodeURIComponent(query)}`)
