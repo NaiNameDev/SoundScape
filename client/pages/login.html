@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход - SoundCloud Clone</title>
+</head>
+<body>
+    <header>
+        <h1>🎵 SoundCloud Clone</h1>
+        <nav>
+            <a href="/pages/index.html">Главная</a>
+            <a href="/pages/login.html">Войти</a>
+            <a href="/pages/register.html">Регистрация</a>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Вход в систему</h2>
+        
+        <form id="loginForm">
+            <div>
+                <label for="username">Имя пользователя:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            
+            <div>
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <div id="errorMessage" style="color: red;"></div>
+            
+            <button type="submit">Войти</button>
+        </form>
+        
+        <p>Нет аккаунта? <a href="/pages/register.html">Зарегистрироваться</a></p>
+    </main>
+
+    <script src="/src/auth.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value
+            };
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Сохраняем данные пользователя
+                    localStorage.setItem('currentUser', JSON.stringify(data.user));
+                    
+                    // Перенаправляем на главную
+                    alert('Вход выполнен успешно!');
+                    window.location.href = '/pages/index.html';
+                } else {
+                    document.getElementById('errorMessage').textContent = data.error || 'Ошибка входа';
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                document.getElementById('errorMessage').textContent = 'Ошибка соединения с сервером';
+            }
+        });
+    </script>
+</body>
+</html>

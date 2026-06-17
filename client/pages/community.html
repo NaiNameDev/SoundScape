@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сообщество - SoundCloud Clone</title>
+</head>
+<body>
+    <header>
+        <h1>🎵 SoundCloud Clone</h1>
+        <nav>
+            <a href="/pages/index.html">Главная</a>
+            <a href="/pages/communities.html">Сообщества</a>
+            <span id="authLinks">
+                <a href="/pages/login.html">Войти</a>
+                <a href="/pages/register.html">Регистрация</a>
+            </span>
+            <span id="userLinks" style="display: none;">
+                <a href="/pages/profile.html">Профиль</a>
+                <button onclick="logout()">Выйти</button>
+            </span>
+        </nav>
+    </header>
+
+    <main>
+        <div id="communityInfo">
+            <h2>Загрузка информации о сообществе...</h2>
+        </div>
+
+        <div id="membershipActions" style="display: none;">
+            <button id="joinBtn" onclick="toggleMembership()">Вступить в сообщество</button>
+            <button id="leaveBtn" style="display: none;" onclick="toggleMembership()">Выйти из сообщества</button>
+        </div>
+
+        <section style="display: flex;">
+            <div style="flex: 3;">
+                <h3>Чат сообщества</h3>
+                <div id="chatMessages" style="height: 400px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+                    <p>Загрузка сообщений...</p>
+                </div>
+                
+                <div id="messageForm" style="display: none;">
+                    <textarea id="messageText" placeholder="Введите сообщение..." rows="3" style="width: 100%;"></textarea>
+                    <br>
+                    <button onclick="sendMessage()">Отправить</button>
+                </div>
+            </div>
+            
+            <aside style="flex: 1; margin-left: 20px;">
+                <h3>Участники</h3>
+                <div id="membersList">
+                    <p>Загрузка участников...</p>
+                </div>
+            </aside>
+        </section>
+    </main>
+
+    <script src="/src/chat.js"></script>
+    <script>
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        let communityId = null;
+        let isMember = false;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            communityId = urlParams.get('id');
+            
+            if (!communityId) {
+                document.getElementById('communityInfo').innerHTML = '<h2>Сообщество не найдено</h2>';
+                return;
+            }
+            
+            loadCommunityInfo();
+            loadMembers();
+            loadMessages();
+            
+            if (currentUser) {
+                checkMembership();
+            }
+            
+            // Автообновление чата каждые 3 секунды
+            setInterval(loadMessages, 3000);
+            
+            // Автообновление списка участников каждые 30 секунд
+            setInterval(loadMembers, 30000);
+        });
+
+        function loadCommunityInfo() {
+            fetch(`/api/community/info/${communityId}`)
+                .then(response => response.json())
+                .then(community => {
+                    document.getElementById('communityInfo').innerHTML = `
+                        <h2>${community.name}</h2>
+                        <p>${community.description || 'Нет описания'}</p>
+                        <p>
+                            <small>
+                                Создатель: 
+                                <a href="/pages/profile.html?user_id=${community.creator_id}">
+                                    ${community.creator_name}
+                                </a>
+                            </small>
+                        </p>
+                        <p><small>Участников: ${community.members_count}</small></p>
+                        <p><small>Создано: ${community.creation_date}</small></p>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Ошибка загрузки сообщества:', error);
+                    document.getElementById('communityInfo').innerHTML = '<h2>Ошибка загрузки</h2>';
+                });
+        }
+
+        function checkMembership() {
+            fetch(`/api/community/check-membership/${communityId}/${currentUser.id}`)
+                .then(response => response.json())
+                .then(data => {
+                    isMember = data.is_member;
+                    
+                    document.getElementById('membershipActions').style.display = 'block';
+                    
+                    if (isMember) {
+                        document.getElementById('joinBtn').style.display = 'none';
+                        document.getElementById('leaveBtn').style.display = 'inline';
+                        document.getElementById('messageForm').style.display = 'block';
+                    } else {
+                        document.getElementById('joinBtn').style.display = 'inline';
+                        document.getElementById('leaveBtn').style.display = 'none';
+                        document.getElementById('messageForm').style.display = 'none';
+                    }
+                });
+        }
+
+        function toggleMembership() {
+            if (!currentUser) {
+                alert('Необходимо войти в систему');
+                return;
+            }
+            
+            const action = isMember ? 'leave' : 'join';
+            const endpoint = `/api/community/${action}`;
+            
+            fetch(endpoint, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    community_id: parseInt(communityId),
+                    user_id: currentUser.id
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    checkMembership();
+                    loadCommunityInfo();
+                    loadMembers();
+                } else {
+                    alert(data.message || 'Ошибка');
+                }
+            })
+            .catch(error => console.error('Ошибка:', error));
+        }
+
+        function loadMembers() {
+            fetch(`/api/community/members/${communityId}`)
+                .then(response => response.json())
+                .then(members => {
+                    const container = document.getElementById('membersList');
+                    
+                    if (!members || members.length === 0) {
+                        container.innerHTML = '<p>Нет участников</p>';
+                        return;
+                    }
+                    
+                    container.innerHTML = '<ul>' + members.map(member => `
+                        <li>
+                            <a href="/pages/profile.html?user_id=${member.id}">
+                                ${member.username}
+                            </a>
+                            <small>(${member.user_type === 'musician' ? 'Музыкант' : 'Слушатель'})</small>
+                        </li>
+                    `).join('') + '</ul>';
+                })
+                .catch(error => {
+                    console.error('Ошибка загрузки участников:', error);
+                    document.getElementById('membersList').innerHTML = '<p>Ошибка загрузки</p>';
+                });
+        }
+
+        function loadMessages() {
+            fetch(`/api/community/messages/${communityId}?limit=50`)
+                .then(response => response.json())
+                .then(messages => {
+                    const container = document.getElementById('chatMessages');
+                    
+                    if (!messages || messages.length === 0) {
+                        container.innerHTML = '<p>Нет сообщений. Начните общение!</p>';
+                        return;
+                    }
+                    
+                    container.innerHTML = messages.map(msg => `
+                        <div style="margin: 5px 0; padding: 5px;">
+                            <strong>
+                                <a href="/pages/profile.html?user_id=${msg.user_id}">
+                                    ${msg.username}
+                                </a>
+                            </strong>
+                            <small>${msg.date}</small>
+                            <div>${msg.text}</div>
+                        </div>
+                    `).join('');
+                    
+                    // Прокручиваем чат вниз
+                    container.scrollTop = container.scrollHeight;
+                })
+                .catch(error => {
+                    console.error('Ошибка загрузки сообщений:', error);
+                    document.getElementById('chatMessages').innerHTML = '<p>Ошибка загрузки сообщений</p>';
+                });
+        }
+
+        function sendMessage() {
+            if (!currentUser || !isMember) {
+                alert('Вы не можете отправлять сообщения');
+                return;
+            }
+            
+            const messageText = document.getElementById('messageText').value.trim();
+            
+            if (!messageText) {
+                alert('Введите сообщение');
+                return;
+            }
+            
+            fetch('/api/community/message', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    community_id: parseInt(communityId),
+                    user_id: currentUser.id,
+                    message_text: messageText
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('messageText').value = '';
+                    loadMessages();
+                } else {
+                    alert('Ошибка отправки сообщения');
+                }
+            })
+            .catch(error => console.error('Ошибка:', error));
+        }
+
+        // Отправка сообщения по Enter
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+/* Базовые стили для функциональности - без декораций */
+/* Вы можете добавить свой дизайн позже */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+nav a, nav button {
+    margin-right: 10px;
+}
+
+.track-item {
+    padding: 10px;
+    margin: 5px 0;
+}
+
+.playlist-item {
+    padding: 5px;
+}
+
+#errorMessage {
+    margin: 10px 0;
+}
+
+form div {
+    margin: 10px 0;
+}
+
+input, select, textarea {
+    margin: 5px 0;
+}
+
+button {
+    margin: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+}

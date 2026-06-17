@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация - SoundCloud Clone</title>
+</head>
+<body>
+    <header>
+        <h1>🎵 SoundCloud Clone</h1>
+        <nav>
+            <a href="/pages/index.html">Главная</a>
+            <a href="/pages/login.html">Войти</a>
+            <a href="/pages/register.html">Регистрация</a>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Регистрация</h2>
+        
+        <form id="registerForm">
+            <div>
+                <label for="username">Имя пользователя:</label>
+                <input type="text" id="username" name="username" required minlength="3">
+            </div>
+            
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div>
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" name="password" required minlength="6">
+            </div>
+            
+            <div>
+                <label for="confirmPassword">Подтвердите пароль:</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+            </div>
+            
+            <div>
+                <label>Тип пользователя:</label>
+                <select id="userType" name="userType" required>
+                    <option value="listener">Слушатель</option>
+                    <option value="musician">Музыкант</option>
+                </select>
+            </div>
+            
+            <div>
+                <label>
+                    <input type="checkbox" id="isForeignAgent" name="isForeignAgent">
+                    Являетесь ли вы иностранным агентом?
+                </label>
+            </div>
+            
+            <div id="errorMessage" style="color: red;"></div>
+            
+            <button type="submit">Зарегистрироваться</button>
+        </form>
+        
+        <p>Уже есть аккаунт? <a href="/pages/login.html">Войти</a></p>
+    </main>
+
+    <script src="/src/auth.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                document.getElementById('errorMessage').textContent = 'Пароли не совпадают';
+                return;
+            }
+            
+            const formData = {
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                password: password,
+                user_type: document.getElementById('userType').value,
+                is_foreign_agent: document.getElementById('isForeignAgent').checked
+            };
+            
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Регистрация успешна! Теперь вы можете войти.');
+                    window.location.href = '/pages/login.html';
+                } else {
+                    document.getElementById('errorMessage').textContent = data.error || 'Ошибка регистрации';
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                document.getElementById('errorMessage').textContent = 'Ошибка соединения с сервером';
+            }
+        });
+    </script>
+</body>
+</html>
