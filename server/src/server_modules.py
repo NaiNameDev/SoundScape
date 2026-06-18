@@ -12,11 +12,9 @@ class DatabaseManager:
         self.init_database()
     
     def init_database(self):
-        """Инициализация базы данных и создание таблиц"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         
-        # Таблица пользователей
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -30,13 +28,13 @@ class DatabaseManager:
             )
         ''')
         
-        # Таблица песен/треков
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS tracks (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
                 artist_id INTEGER NOT NULL,
                 file_path TEXT NOT NULL,
+                cover_path TEXT,
                 duration REAL,
                 genre TEXT,
                 description TEXT,
@@ -46,7 +44,6 @@ class DatabaseManager:
             )
         ''')
         
-        # Таблица плейлистов
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS playlists (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -58,7 +55,6 @@ class DatabaseManager:
             )
         ''')
         
-        # Таблица связи плейлистов и треков
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS playlist_tracks (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -70,7 +66,6 @@ class DatabaseManager:
             )
         ''')
         
-        # Таблица лайков
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS likes (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -83,7 +78,6 @@ class DatabaseManager:
             )
         ''')
         
-        # Таблица комментариев
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS comments (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -96,7 +90,6 @@ class DatabaseManager:
             )
         ''')
         
-        # Таблица сообществ
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS communities (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -109,7 +102,6 @@ class DatabaseManager:
             )
         ''')
         
-        # Таблица участников сообществ
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS community_members (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -122,7 +114,6 @@ class DatabaseManager:
             )
         ''')
         
-        # Таблица сообщений в чатах сообществ
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS community_messages (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -139,11 +130,9 @@ class DatabaseManager:
         conn.close()
     
     def get_connection(self):
-        """Получение соединения с базой данных"""
         return sqlite3.connect(self.db_path)
     
     def register_user(self, username, email, password, user_type, is_foreign_agent):
-        """Регистрация нового пользователя"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -167,7 +156,6 @@ class DatabaseManager:
             return False, str(e)
     
     def authenticate_user(self, username, password):
-        """Аутентификация пользователя"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -201,7 +189,6 @@ class DatabaseManager:
             return False, "Неверное имя пользователя или пароль"
     
     def get_user_info(self, user_id):
-        """Получение информации о пользователе"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -224,15 +211,14 @@ class DatabaseManager:
             }
         return None
     
-    def upload_track(self, title, artist_id, file_path, genre=None, description=None):
-        """Загрузка нового трека"""
+    def upload_track(self, title, artist_id, file_path, genre=None, description=None, cover_path=None):
         conn = self.get_connection()
         cursor = conn.cursor()
         
         cursor.execute('''
-            INSERT INTO tracks (title, artist_id, file_path, genre, description)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (title, artist_id, file_path, genre, description))
+            INSERT INTO tracks (title, artist_id, file_path, genre, description, cover_path)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (title, artist_id, file_path, genre, description, cover_path))
         
         conn.commit()
         track_id = cursor.lastrowid
@@ -240,14 +226,34 @@ class DatabaseManager:
         
         return track_id
     
+    def delete_track(self, track_id, user_id):
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute('SELECT file_path, cover_path FROM tracks WHERE id = ? AND artist_id = ?', (track_id, user_id))
+        track = cursor.fetchone()
+        
+        if not track:
+            conn.close()
+            return False, "Трек не найден или у вас нет прав"
+        
+        cursor.execute('DELETE FROM comments WHERE track_id = ?', (track_id,))
+        cursor.execute('DELETE FROM likes WHERE track_id = ?', (track_id,))
+        cursor.execute('DELETE FROM playlist_tracks WHERE track_id = ?', (track_id,))
+        cursor.execute('DELETE FROM tracks WHERE id = ?', (track_id,))
+        
+        conn.commit()
+        conn.close()
+        
+        return True, "Трек удален"
+    
     def get_track_info(self, track_id):
-        """Получение информации о конкретном треке"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
         cursor.execute('''
             SELECT t.id, t.title, u.username, u.id as artist_id, t.genre, 
-                   t.description, t.plays_count, t.upload_date, t.file_path
+                   t.description, t.plays_count, t.upload_date, t.file_path, t.cover_path
             FROM tracks t
             JOIN users u ON t.artist_id = u.id
             WHERE t.id = ?
@@ -266,18 +272,18 @@ class DatabaseManager:
                 'description': track[5],
                 'plays_count': track[6],
                 'upload_date': track[7],
-                'file_path': track[8]
+                'file_path': track[8],
+                'cover_path': track[9]
             }
         return None
     
     def get_all_tracks(self, search_query=None, genre=None):
-        """Получение всех треков с возможностью поиска и фильтрации"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
         query = '''
-            SELECT t.id, t.title, u.username as artist, t.genre, t.description, 
-                   t.plays_count, t.upload_date, t.file_path
+            SELECT t.id, t.title, u.username as artist, u.id as artist_id, t.genre, t.description, 
+                   t.plays_count, t.upload_date, t.file_path, t.cover_path
             FROM tracks t
             JOIN users u ON t.artist_id = u.id
             WHERE 1=1
@@ -302,21 +308,24 @@ class DatabaseManager:
             'id': track[0],
             'title': track[1],
             'artist': track[2],
-            'genre': track[3],
-            'description': track[4],
-            'plays_count': track[5],
-            'upload_date': track[6],
-            'file_path': track[7]
+            'artist_id': track[3],
+            'genre': track[4],
+            'description': track[5],
+            'plays_count': track[6],
+            'upload_date': track[7],
+            'file_path': track[8],
+            'cover_path': track[9]
         } for track in tracks]
     
     def get_user_tracks(self, user_id):
-        """Получение треков конкретного пользователя"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
         cursor.execute('''
-            SELECT t.id, t.title, t.genre, t.description, t.plays_count, t.upload_date, t.file_path
+            SELECT t.id, t.title, u.username as artist, u.id as artist_id, t.genre, t.description, 
+                   t.plays_count, t.upload_date, t.file_path, t.cover_path
             FROM tracks t
+            JOIN users u ON t.artist_id = u.id
             WHERE t.artist_id = ?
             ORDER BY t.upload_date DESC
         ''', (user_id,))
@@ -327,15 +336,17 @@ class DatabaseManager:
         return [{
             'id': track[0],
             'title': track[1],
-            'genre': track[2],
-            'description': track[3],
-            'plays_count': track[4],
-            'upload_date': track[5],
-            'file_path': track[6]
+            'artist': track[2],
+            'artist_id': track[3],
+            'genre': track[4],
+            'description': track[5],
+            'plays_count': track[6],
+            'upload_date': track[7],
+            'file_path': track[8],
+            'cover_path': track[9]
         } for track in tracks]
     
     def increment_play_count(self, track_id):
-        """Увеличение счетчика прослушиваний"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -347,7 +358,6 @@ class DatabaseManager:
         conn.close()
     
     def like_track(self, user_id, track_id):
-        """Лайкнуть трек"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -363,7 +373,6 @@ class DatabaseManager:
             return False
     
     def unlike_track(self, user_id, track_id):
-        """Убрать лайк с трека"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -375,7 +384,6 @@ class DatabaseManager:
         conn.close()
     
     def is_liked_by_user(self, user_id, track_id):
-        """Проверка, лайкнул ли пользователь трек"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -389,7 +397,6 @@ class DatabaseManager:
         return count > 0
     
     def get_track_likes_count(self, track_id):
-        """Получение количества лайков трека"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -400,7 +407,6 @@ class DatabaseManager:
         return count
     
     def add_comment(self, user_id, track_id, comment_text):
-        """Добавление комментария к треку"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -416,7 +422,6 @@ class DatabaseManager:
         return comment_id
     
     def get_track_comments(self, track_id):
-        """Получение комментариев к треку"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -440,7 +445,6 @@ class DatabaseManager:
         } for comment in comments]
     
     def create_playlist(self, name, user_id, is_public=True):
-        """Создание плейлиста"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -455,7 +459,6 @@ class DatabaseManager:
         return playlist_id
     
     def add_track_to_playlist(self, playlist_id, track_id):
-        """Добавление трека в плейлист"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -467,7 +470,6 @@ class DatabaseManager:
         conn.close()
     
     def get_user_playlists(self, user_id):
-        """Получение плейлистов пользователя"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -488,10 +490,7 @@ class DatabaseManager:
             'is_public': bool(pl[3])
         } for pl in playlists]
     
-    # Методы для работы с сообществами
-    
     def create_community(self, name, description, creator_id):
-        """Создание нового сообщества"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -502,7 +501,6 @@ class DatabaseManager:
         
         community_id = cursor.lastrowid
         
-        # Автоматически добавляем создателя как участника
         cursor.execute('''
             INSERT INTO community_members (community_id, user_id)
             VALUES (?, ?)
@@ -514,7 +512,6 @@ class DatabaseManager:
         return community_id
     
     def get_all_communities(self):
-        """Получение всех сообществ"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -540,7 +537,6 @@ class DatabaseManager:
         } for c in communities]
     
     def get_community_info(self, community_id):
-        """Получение информации о сообществе"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -568,7 +564,6 @@ class DatabaseManager:
         return None
     
     def join_community(self, community_id, user_id):
-        """Вступление в сообщество"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -578,7 +573,6 @@ class DatabaseManager:
                 VALUES (?, ?)
             ''', (community_id, user_id))
             
-            # Обновляем счетчик участников
             cursor.execute('''
                 UPDATE communities SET members_count = members_count + 1
                 WHERE id = ?
@@ -592,7 +586,6 @@ class DatabaseManager:
             return False
     
     def leave_community(self, community_id, user_id):
-        """Выход из сообщества"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -601,7 +594,6 @@ class DatabaseManager:
             WHERE community_id = ? AND user_id = ?
         ''', (community_id, user_id))
         
-        # Обновляем счетчик участников
         cursor.execute('''
             UPDATE communities SET members_count = members_count - 1
             WHERE id = ?
@@ -611,7 +603,6 @@ class DatabaseManager:
         conn.close()
     
     def is_member_of_community(self, community_id, user_id):
-        """Проверка, является ли пользователь участником сообщества"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -626,7 +617,6 @@ class DatabaseManager:
         return count > 0
     
     def get_user_communities(self, user_id):
-        """Получение сообществ пользователя"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -649,7 +639,6 @@ class DatabaseManager:
         } for c in communities]
     
     def get_community_members(self, community_id):
-        """Получение участников сообщества"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -672,7 +661,6 @@ class DatabaseManager:
         } for m in members]
     
     def send_community_message(self, community_id, user_id, message_text):
-        """Отправка сообщения в чат сообщества"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -688,7 +676,6 @@ class DatabaseManager:
         return message_id
     
     def get_community_messages(self, community_id, limit=50):
-        """Получение сообщений чата сообщества"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -704,7 +691,6 @@ class DatabaseManager:
         messages = cursor.fetchall()
         conn.close()
         
-        # Возвращаем в обратном порядке (старые сверху)
         return [{
             'id': m[0],
             'username': m[1],

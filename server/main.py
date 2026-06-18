@@ -7,36 +7,29 @@ from pathlib import Path
 from src.server_modules import DatabaseManager
 from datetime import datetime
 
-# Настройка путей
 BASE_DIR = Path(__file__).parent.parent
 DB_PATH = BASE_DIR / 'server' / 'local_data' / 'database.db'
 UPLOAD_DIR = BASE_DIR / 'server' / 'local_data' / 'uploads'
 CLIENT_DIR = BASE_DIR / 'client'
 
-# Создание необходимых директорий
 os.makedirs(DB_PATH.parent, exist_ok=True)
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-# Инициализация базы данных
 db = DatabaseManager(str(DB_PATH))
 
 class MusicPlatformHandler(BaseHTTPRequestHandler):
     
     def do_GET(self):
-        """Обработка GET запросов"""
         parsed_url = urlparse(self.path)
         path = parsed_url.path
         query_params = parse_qs(parsed_url.query)
         
-        # API endpoints
         if path.startswith('/api/'):
             self.handle_api_get(path, query_params)
         else:
-            # Статические файлы
             self.serve_static_file(path)
     
     def do_POST(self):
-        """Обработка POST запросов"""
         parsed_url = urlparse(self.path)
         path = parsed_url.path
         
@@ -57,11 +50,9 @@ class MusicPlatformHandler(BaseHTTPRequestHandler):
             self.send_error(404)
     
     def serve_static_file(self, path):
-        """Отдача статических файлов"""
         if path == '/' or path == '':
             path = '/pages/index.html'
         
-        # Безопасность: предотвращаем выход за пределы директории
         safe_path = CLIENT_DIR / path.lstrip('/')
         
         try:
@@ -85,7 +76,6 @@ class MusicPlatformHandler(BaseHTTPRequestHandler):
             self.send_error(500, str(e))
     
     def get_content_type(self, filepath):
-        """Определение типа контента"""
         ext = Path(filepath).suffix.lower()
         content_types = {
             '.html': 'text/html; charset=utf-8',
@@ -97,6 +87,7 @@ class MusicPlatformHandler(BaseHTTPRequestHandler):
             '.jpeg': 'image/jpeg',
             '.gif': 'image/gif',
             '.svg': 'image/svg+xml',
+            '.webp': 'image/webp',
             '.mp3': 'audio/mpeg',
             '.wav': 'audio/wav',
             '.ogg': 'audio/ogg'
@@ -104,7 +95,6 @@ class MusicPlatformHandler(BaseHTTPRequestHandler):
         return content_types.get(ext, 'application/octet-stream')
     
     def handle_api_get(self, path, query_params):
-        """Обработка GET API запросов"""
         if path == '/api/tracks':
             search = query_params.get('search', [None])[0]
             genre = query_params.get('genre', [None])[0]
@@ -176,8 +166,23 @@ class MusicPlatformHandler(BaseHTTPRequestHandler):
             file_path = UPLOAD_DIR / filename
             
             if file_path.exists():
+                ext = file_path.suffix.lower()
+                content_type = 'audio/mpeg'
+                if ext == '.wav':
+                    content_type = 'audio/wav'
+                elif ext == '.ogg':
+                    content_type = 'audio/ogg'
+                elif ext in ['.jpg', '.jpeg']:
+                    content_type = 'image/jpeg'
+                elif ext == '.png':
+                    content_type = 'image/png'
+                elif ext == '.gif':
+                    content_type = 'image/gif'
+                elif ext == '.webp':
+                    content_type = 'image/webp'
+                
                 self.send_response(200)
-                self.send_header('Content-Type', 'audio/mpeg')
+                self.send_header('Content-Type', content_type)
                 self.send_header('Content-Length', str(file_path.stat().st_size))
                 self.send_header('Accept-Ranges', 'bytes')
                 self.end_headers()
@@ -185,9 +190,8 @@ class MusicPlatformHandler(BaseHTTPRequestHandler):
                 with open(file_path, 'rb') as f:
                     self.wfile.write(f.read())
             else:
-                self.send_error(404, "Audio file not found")
+                self.send_error(404, "File not found")
         
-        # API для сообществ
         elif path == '/api/communities':
             communities = db.get_all_communities()
             self.send_json_response(communities)
@@ -242,7 +246,6 @@ class MusicPlatformHandler(BaseHTTPRequestHandler):
             self.send_error(404)
     
     def handle_api_post(self, path, data):
-        """Обработка POST API запросов"""
         if path == '/api/register':
             username = data.get('username')
             email = data.get('email')
@@ -331,6 +334,20 @@ class MusicPlatformHandler(BaseHTTPRequestHandler):
             else:
                 self.send_json_response({'success': False, 'error': 'Track ID required'}, 400)
         
+        elif path == '/api/track/delete':
+            track_id = data.get('track_id')
+            user_id = data.get('user_id')
+            
+            if not all([track_id, user_id]):
+                self.send_json_response({'success': False, 'error': 'Требуются track_id и user_id'}, 400)
+                return
+            
+            success, message = db.delete_track(track_id, user_id)
+            if success:
+                self.send_json_response({'success': True, 'message': message})
+            else:
+                self.send_json_response({'success': False, 'error': message}, 400)
+        
         elif path == '/api/playlist/create':
             name = data.get('name')
             user_id = data.get('user_id')
@@ -354,7 +371,6 @@ class MusicPlatformHandler(BaseHTTPRequestHandler):
             db.add_track_to_playlist(playlist_id, track_id)
             self.send_json_response({'success': True})
         
-        # API для сообществ
         elif path == '/api/community/create':
             name = data.get('name')
             description = data.get('description', '')
@@ -418,7 +434,6 @@ class MusicPlatformHandler(BaseHTTPRequestHandler):
             self.send_error(404)
     
     def handle_file_upload(self, path):
-        """Обработка загрузки файлов (без использования cgi)"""
         if path == '/api/upload':
             try:
                 content_type = self.headers.get('Content-Type')
@@ -430,6 +445,8 @@ class MusicPlatformHandler(BaseHTTPRequestHandler):
                 
                 audio_data = None
                 audio_filename = None
+                cover_data = None
+                cover_filename = None
                 title = 'Unknown Track'
                 artist_id = None
                 genre = 'Other'
@@ -439,6 +456,9 @@ class MusicPlatformHandler(BaseHTTPRequestHandler):
                     if field_name == 'audio':
                         audio_data = field_value['content']
                         audio_filename = field_value['filename']
+                    elif field_name == 'cover':
+                        cover_data = field_value['content']
+                        cover_filename = field_value['filename']
                     elif field_name == 'title':
                         title = field_value.decode('utf-8') if isinstance(field_value, bytes) else field_value
                     elif field_name == 'artist_id':
@@ -463,12 +483,23 @@ class MusicPlatformHandler(BaseHTTPRequestHandler):
                 with open(file_path, 'wb') as f:
                     f.write(audio_data)
                 
+                cover_path = None
+                if cover_data:
+                    cover_ext = Path(cover_filename).suffix.lower() if cover_filename else '.jpg'
+                    if cover_ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']:
+                        cover_filename_unique = f"{uuid.uuid4()}{cover_ext}"
+                        cover_full_path = UPLOAD_DIR / cover_filename_unique
+                        with open(cover_full_path, 'wb') as f:
+                            f.write(cover_data)
+                        cover_path = f"/api/audio/{cover_filename_unique}"
+                
                 track_id = db.upload_track(
                     title=title,
                     artist_id=int(artist_id),
                     file_path=f"/api/audio/{unique_filename}",
                     genre=genre,
-                    description=description
+                    description=description,
+                    cover_path=cover_path
                 )
                 
                 self.send_json_response({
@@ -483,7 +514,6 @@ class MusicPlatformHandler(BaseHTTPRequestHandler):
             self.send_error(404)
     
     def parse_multipart(self, body, boundary):
-        """Парсинг multipart/form-data вручную"""
         fields = {}
         boundary = b'--' + boundary
         parts = body.split(boundary)
@@ -532,7 +562,6 @@ class MusicPlatformHandler(BaseHTTPRequestHandler):
         return fields
     
     def send_json_response(self, data, status_code=200):
-        """Отправка JSON ответа"""
         self.send_response(status_code)
         self.send_header('Content-Type', 'application/json; charset=utf-8')
         self.send_header('Access-Control-Allow-Origin', '*')
@@ -540,7 +569,6 @@ class MusicPlatformHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(data, ensure_ascii=False).encode('utf-8'))
     
     def do_OPTIONS(self):
-        """Обработка CORS preflight запросов"""
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
@@ -548,16 +576,13 @@ class MusicPlatformHandler(BaseHTTPRequestHandler):
         self.end_headers()
     
     def log_message(self, format, *args):
-        """Кастомное логирование"""
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {self.client_address[0]} - {args[0]}")
 
 def run_server(host='localhost', port=8000):
-    """Запуск сервера"""
     server = HTTPServer((host, port), MusicPlatformHandler)
     print(f"=== SoundCloud Clone Server ===")
     print(f"Сервер запущен на http://{host}:{port}")
     print(f"Для остановки нажмите Ctrl+C")
-    print(f"Версия Python: {os.sys.version}")
     
     try:
         server.serve_forever()
