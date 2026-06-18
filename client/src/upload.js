@@ -1,9 +1,6 @@
-// upload.js - Загрузка треков
-
 document.addEventListener('DOMContentLoaded', () => {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     
-    // Проверка, что пользователь - музыкант
     if (!currentUser) {
         alert('Необходимо войти в систему');
         window.location.href = '/pages/login.html';
@@ -16,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
     
-    // Обработчик формы загрузки
     document.getElementById('uploadForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -28,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // Проверка размера файла (максимум 50MB)
         if (audioFile.size > 50 * 1024 * 1024) {
             showStatus('Файл слишком большой. Максимальный размер: 50MB', 'error');
             return;
@@ -64,7 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // Предпросмотр аудиофайла
     document.getElementById('audioFile').addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -85,10 +79,8 @@ function showStatus(message, type) {
     const statusDiv = document.getElementById('uploadStatus');
     statusDiv.textContent = message;
     
-    // Убираем все классы
     statusDiv.className = '';
     
-    // Добавляем класс в зависимости от типа
     switch(type) {
         case 'error':
             statusDiv.style.color = 'red';

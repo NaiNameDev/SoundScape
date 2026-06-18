@@ -1,5 +1,3 @@
-// player.js - Управление музыкальным плеером
-
 class MusicPlayer {
     constructor() {
         this.audioPlayer = document.getElementById('audioPlayer');
@@ -11,13 +9,11 @@ class MusicPlayer {
     }
     
     init() {
-        // Загружаем плейлист из localStorage
         const savedPlaylist = localStorage.getItem('playlist');
         if (savedPlaylist) {
             this.playlist = JSON.parse(savedPlaylist);
         }
         
-        // Проверяем URL параметры
         const urlParams = new URLSearchParams(window.location.search);
         const trackId = urlParams.get('track');
         
@@ -29,7 +25,6 @@ class MusicPlayer {
             }
         }
         
-        // Обработчики событий аудиоплеера
         this.audioPlayer.addEventListener('ended', () => this.nextTrack());
         this.audioPlayer.addEventListener('error', () => this.onTrackError());
         
@@ -92,7 +87,6 @@ class MusicPlayer {
     }
     
     addToPlaylist(track) {
-        // Проверяем, нет ли уже такого трека
         const exists = this.playlist.find(t => t.id === track.id);
         if (!exists) {
             this.playlist.push(track);
@@ -140,18 +134,15 @@ class MusicPlayer {
         console.error('Ошибка загрузки аудиофайла');
         document.getElementById('nowPlaying').innerHTML += '<p style="color: red;">Ошибка загрузки трека</p>';
         
-        // Пробуем следующий трек
         setTimeout(() => this.nextTrack(), 2000);
     }
 }
 
-// Инициализация плеера при загрузке страницы
 let player;
 window.addEventListener('DOMContentLoaded', () => {
     player = new MusicPlayer();
 });
 
-// Функции для кнопок
 function togglePlayPause() {
     if (player) player.togglePlayPause();
 }
