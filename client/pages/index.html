@@ -5,12 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Музыка — Главная</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
       --bg: #1e1e1e;
       --bg-nav: #141414;
@@ -26,7 +21,6 @@
       --radius-card: 14px;
       --radius-pill: 999px;
     }
-
     body {
       background: var(--bg);
       color: var(--text-primary);
@@ -35,8 +29,6 @@
       display: flex;
       flex-direction: column;
     }
-
-    /* ── NAVBAR ── */
     nav {
       position: sticky;
       top: 0;
@@ -49,7 +41,6 @@
       padding: 10px 24px;
       height: 56px;
     }
-
     .nav-home-btn {
       background: none;
       border: none;
@@ -63,10 +54,10 @@
       border-radius: 50%;
       transition: background 0.15s;
       flex-shrink: 0;
+      text-decoration: none;
     }
     .nav-home-btn:hover { background: var(--surface); }
     .nav-home-btn svg { width: 20px; height: 20px; fill: currentColor; }
-
     .search-wrap {
       flex: 1;
       max-width: 480px;
@@ -95,13 +86,11 @@
     }
     .search-wrap input::placeholder { color: var(--text-muted); }
     .search-wrap input:focus { border-color: var(--accent); }
-
     .nav-actions {
       margin-left: auto;
       display: flex;
       gap: 8px;
     }
-
     .btn-outline {
       background: transparent;
       border: 1px solid var(--accent);
@@ -115,7 +104,6 @@
       display: inline-block;
     }
     .btn-outline:hover { background: var(--accent); color: #000; }
-
     .btn-fill {
       background: var(--accent);
       border: 1px solid var(--accent);
@@ -130,41 +118,27 @@
       display: inline-block;
     }
     .btn-fill:hover { background: var(--accent-btn); }
-
-    .btn-small {
-      padding: 4px 12px;
-      font-size: 11px;
-    }
-
-    /* ── MAIN SCROLL AREA ── */
-    main {
-      flex: 1;
-      overflow-y: auto;
-      padding: 28px 24px 120px;
-    }
-
-    /* ── SECTION ── */
+    .btn-small { padding: 4px 12px; font-size: 11px; }
+    main { flex: 1; overflow-y: auto; padding: 28px 24px 120px; }
     .section { margin-bottom: 36px; }
-
     .section-title {
       font-size: 18px;
       font-weight: 600;
       color: var(--text-primary);
       margin-bottom: 16px;
       letter-spacing: 0.2px;
+      text-align: center;
     }
-
-    /* ── HORIZONTAL SCROLL ROW ── */
     .cards-row {
       display: flex;
       gap: 14px;
       overflow-x: auto;
       padding-bottom: 8px;
       scrollbar-width: none;
+      justify-content: center;
+      flex-wrap: wrap;
     }
     .cards-row::-webkit-scrollbar { display: none; }
-
-    /* ── CARDS ── */
     .card {
       flex-shrink: 0;
       background: var(--surface);
@@ -177,25 +151,6 @@
       color: inherit;
     }
     .card:hover { transform: scale(1.03); background: var(--surface-hover); }
-
-    /* Chart cards */
-    .card-chart {
-      width: 130px;
-      height: 130px;
-    }
-    .card-chart .placeholder {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 4px;
-      color: var(--text-secondary);
-      font-size: 12px;
-    }
-
-    /* Track cards */
     .card-track {
       width: 160px;
       padding: 12px;
@@ -210,6 +165,12 @@
       justify-content: center;
       margin-bottom: 8px;
       overflow: hidden;
+    }
+    .card-track .track-art img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
     .card-track .track-title {
       font-size: 13px;
@@ -231,8 +192,6 @@
       color: var(--text-muted);
       margin-top: 4px;
     }
-
-    /* Artist circle cards */
     .card-artist {
       width: 110px;
       display: flex;
@@ -270,8 +229,6 @@
       text-overflow: ellipsis;
       max-width: 100%;
     }
-
-    /* ── PLAYER BAR ── */
     .player {
       position: fixed;
       bottom: 0;
@@ -287,7 +244,6 @@
       gap: 16px;
       z-index: 100;
     }
-
     .player-info {
       display: flex;
       align-items: center;
@@ -306,12 +262,7 @@
       font-size: 11px;
       color: var(--text-secondary);
     }
-
-    .player-controls {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
+    .player-controls { display: flex; align-items: center; gap: 20px; }
     .player-controls button {
       background: none;
       border: none;
@@ -335,11 +286,7 @@
     .player-controls .play-btn:hover { background: var(--accent-btn); color: #000; }
     .player-controls svg { width: 18px; height: 18px; fill: currentColor; }
     .player-controls .play-btn svg { width: 16px; height: 16px; }
-
-    .player-progress {
-      flex: 1;
-      max-width: 480px;
-    }
+    .player-progress { flex: 1; max-width: 480px; }
     .progress-bar {
       width: 100%;
       height: 3px;
@@ -355,59 +302,28 @@
       border-radius: 3px;
       transition: width 0.1s linear;
     }
-
-    .player-volume {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--text-secondary);
-    }
+    .player-volume { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); }
     .player-volume svg { width: 18px; height: 18px; fill: currentColor; }
-    .volume-bar {
-      width: 80px;
-      height: 3px;
-      background: var(--surface);
-      border-radius: 3px;
-      cursor: pointer;
-    }
-    .volume-fill {
-      height: 100%;
-      width: 65%;
-      background: var(--text-secondary);
-      border-radius: 3px;
-    }
-
-    .loading-text {
-      color: var(--text-muted);
-      font-size: 14px;
-      padding: 20px;
-    }
-
-    .error-text {
-      color: #ff6b6b;
-      font-size: 14px;
-      padding: 20px;
-    }
+    .volume-bar { width: 80px; height: 3px; background: var(--surface); border-radius: 3px; cursor: pointer; }
+    .volume-fill { height: 100%; width: 65%; background: var(--text-secondary); border-radius: 3px; }
+    .loading-text { color: var(--text-muted); font-size: 14px; padding: 20px; text-align: center; width: 100%; }
+    .error-text { color: #ff6b6b; font-size: 14px; padding: 20px; text-align: center; width: 100%; }
   </style>
 </head>
 <body>
 
-  <!-- NAVBAR -->
   <nav>
     <a href="/pages/index.html" class="nav-home-btn" title="Главная">
       <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
     </a>
-
     <div class="search-wrap">
       <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
       <input type="text" id="searchInput" placeholder="ищите что душе угодно..." />
     </div>
-
     <div class="nav-actions" id="authLinks">
       <a href="/pages/login.html" class="btn-outline">Войти</a>
       <a href="/pages/register.html" class="btn-fill">Регистрация</a>
     </div>
-    
     <div class="nav-actions" id="userLinks" style="display: none;">
       <a href="/pages/communities.html" class="btn-outline btn-small">Сообщества</a>
       <a href="/pages/profile.html" class="btn-outline btn-small">Профиль</a>
@@ -415,26 +331,29 @@
     </div>
   </nav>
 
-  <!-- MAIN CONTENT -->
   <main>
-    <!-- ВСЕ ТРЕКИ -->
+    <section class="section">
+      <h2 class="section-title">🔥 Популярное</h2>
+      <div class="cards-row" id="popularRow"><div class="loading-text">Загрузка...</div></div>
+    </section>
+    <section class="section">
+      <h2 class="section-title">❤️ Больше всего лайков</h2>
+      <div class="cards-row" id="mostLikedRow"><div class="loading-text">Загрузка...</div></div>
+    </section>
+    <section class="section">
+      <h2 class="section-title">▶️ Больше всего прослушиваний</h2>
+      <div class="cards-row" id="mostPlayedRow"><div class="loading-text">Загрузка...</div></div>
+    </section>
     <section class="section">
       <h2 class="section-title">🎵 Все треки</h2>
-      <div class="cards-row" id="tracksRow">
-        <div class="loading-text">Загрузка треков...</div>
-      </div>
+      <div class="cards-row" id="tracksRow"><div class="loading-text">Загрузка треков...</div></div>
     </section>
-
-    <!-- ПОПУЛЯРНЫЕ ИСПОЛНИТЕЛИ -->
     <section class="section">
       <h2 class="section-title">👤 Исполнители</h2>
-      <div class="cards-row" id="artistsRow">
-        <div class="loading-text">Загрузка исполнителей...</div>
-      </div>
+      <div class="cards-row" id="artistsRow"><div class="loading-text">Загрузка исполнителей...</div></div>
     </section>
   </main>
 
-  <!-- PLAYER BAR -->
   <div class="player" id="playerBar">
     <div class="player-info">
       <div>
@@ -442,7 +361,6 @@
         <div class="track-artist-small" id="playerArtistName">Выберите трек</div>
       </div>
     </div>
-
     <div class="player-controls">
       <button onclick="playerControls.previous()" title="Назад">
         <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
@@ -454,13 +372,11 @@
         <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
       </button>
     </div>
-
     <div class="player-progress">
       <div class="progress-bar" onclick="playerControls.seek(event)">
         <div class="progress-fill" id="progressFill"></div>
       </div>
     </div>
-
     <div class="player-volume">
       <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
       <div class="volume-bar" onclick="playerControls.setVolume(event)">
@@ -471,29 +387,26 @@
 
   <audio id="audioPlayer" style="display: none;"></audio>
 
-  <script src="/src/chat.js"></script>
-  <script src="/src/player.js"></script>
   <script>
-    // Глобальные переменные
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     let allTracks = [];
     let playlist = [];
     let currentTrackIndex = -1;
 
-    // Инициализация при загрузке
     window.addEventListener('DOMContentLoaded', () => {
       checkAuth();
       loadAllTracks();
+      loadPopularTracks();
+      loadMostLikedTracks();
+      loadMostPlayedTracks();
       loadArtists();
       setupPlayer();
       setupSearch();
     });
 
-    // Проверка авторизации
     function checkAuth() {
       const authLinks = document.getElementById('authLinks');
       const userLinks = document.getElementById('userLinks');
-      
       if (currentUser) {
         if (authLinks) authLinks.style.display = 'none';
         if (userLinks) userLinks.style.display = 'flex';
@@ -508,189 +421,185 @@
       window.location.href = '/pages/index.html';
     }
 
-    // Загрузка треков
+    function loadPopularTracks() {
+      fetch('/api/tracks')
+        .then(response => response.json())
+        .then(tracks => {
+          const popular = [...tracks]
+            .sort((a, b) => (b.plays_count + (b.likes || 0)) - (a.plays_count + (a.likes || 0)))
+            .slice(0, 6);
+          displayTracks(popular, 'popularRow');
+        })
+        .catch(error => {
+          document.getElementById('popularRow').innerHTML = '<div class="error-text">Ошибка загрузки</div>';
+        });
+    }
+
+    function loadMostLikedTracks() {
+      fetch('/api/tracks')
+        .then(response => response.json())
+        .then(tracks => {
+          const likesPromises = tracks.map(track =>
+            fetch(`/api/track/${track.id}/likes`)
+              .then(r => r.json())
+              .then(data => ({...track, likes: data.likes}))
+              .catch(() => ({...track, likes: 0}))
+          );
+          return Promise.all(likesPromises);
+        })
+        .then(tracksWithLikes => {
+          const mostLiked = tracksWithLikes.sort((a, b) => b.likes - a.likes).slice(0, 6);
+          displayTracks(mostLiked, 'mostLikedRow');
+        })
+        .catch(error => {
+          document.getElementById('mostLikedRow').innerHTML = '<div class="error-text">Ошибка загрузки</div>';
+        });
+    }
+
+    function loadMostPlayedTracks() {
+      fetch('/api/tracks')
+        .then(response => response.json())
+        .then(tracks => {
+          const mostPlayed = [...tracks].sort((a, b) => b.plays_count - a.plays_count).slice(0, 6);
+          displayTracks(mostPlayed, 'mostPlayedRow');
+        })
+        .catch(error => {
+          document.getElementById('mostPlayedRow').innerHTML = '<div class="error-text">Ошибка загрузки</div>';
+        });
+    }
+
     function loadAllTracks() {
       fetch('/api/tracks')
         .then(response => response.json())
         .then(tracks => {
           allTracks = tracks;
-          displayTracks(tracks);
+          displayTracks(tracks, 'tracksRow');
         })
         .catch(error => {
-          console.error('Ошибка загрузки треков:', error);
-          document.getElementById('tracksRow').innerHTML = 
-            '<div class="error-text">Ошибка загрузки треков</div>';
+          document.getElementById('tracksRow').innerHTML = '<div class="error-text">Ошибка загрузки треков</div>';
         });
     }
 
-    function displayTracks(tracks) {
-      const container = document.getElementById('tracksRow');
-      
+    function displayTracks(tracks, containerId) {
+      const container = document.getElementById(containerId);
       if (!tracks || tracks.length === 0) {
         container.innerHTML = '<div class="loading-text">Треки не найдены</div>';
         return;
       }
-
       container.innerHTML = tracks.map(track => `
-        <a href="/pages/track.html?id=${track.id}" class="card card-track">
+        <a href="/pages/track.html?id=${track.id}" class="card card-track" data-track-id="${track.id}">
           <div class="track-art">
-            <span style="font-size: 32px;">🎵</span>
+            ${track.cover_path 
+              ? `<img src="${track.cover_path}" alt="${escapeHtml(track.title)}" />`
+              : `<span style="font-size: 32px;">🎵</span>`
+            }
           </div>
           <div class="track-title">${escapeHtml(track.title)}</div>
           <div class="track-artist">${escapeHtml(track.artist)}</div>
           <div class="track-meta">
             ${track.genre || 'Без жанра'} · ▶ ${track.plays_count}
+            ${track.likes !== undefined ? ` · ❤️ ${track.likes}` : ''}
           </div>
         </a>
       `).join('');
     }
 
-    // Загрузка исполнителей (уникальные пользователи с треками)
     function loadArtists() {
       fetch('/api/tracks')
         .then(response => response.json())
         .then(tracks => {
           const artists = {};
           tracks.forEach(track => {
-            if (!artists[track.artist]) {
-              artists[track.artist] = track;
+            if (track.artist_id && !artists[track.artist_id]) {
+              artists[track.artist_id] = { id: track.artist_id, name: track.artist };
             }
           });
           displayArtists(Object.values(artists));
         })
         .catch(error => {
-          console.error('Ошибка загрузки исполнителей:', error);
-          document.getElementById('artistsRow').innerHTML = 
-            '<div class="error-text">Ошибка загрузки</div>';
+          document.getElementById('artistsRow').innerHTML = '<div class="error-text">Ошибка загрузки</div>';
         });
     }
 
     function displayArtists(artists) {
       const container = document.getElementById('artistsRow');
-      
       if (!artists || artists.length === 0) {
         container.innerHTML = '<div class="loading-text">Нет исполнителей</div>';
         return;
       }
-
       container.innerHTML = artists.slice(0, 10).map(artist => `
-        <div class="card-artist" onclick="window.location.href='/pages/profile.html?user_id=${artist.artist_id || 1}'">
-          <div class="avatar">
-            <span class="avatar-text">${artist.artist.charAt(0).toUpperCase()}</span>
-          </div>
-          <span class="name">${escapeHtml(artist.artist)}</span>
+        <div class="card-artist" onclick="window.location.href='/pages/profile.html?user_id=${artist.id}'">
+          <div class="avatar"><span class="avatar-text">${artist.name.charAt(0).toUpperCase()}</span></div>
+          <span class="name">${escapeHtml(artist.name)}</span>
         </div>
       `).join('');
     }
 
-    // Поиск
-		function setupSearch() {
-		  const searchInput = document.getElementById('searchInput');
-		  
-		  // При нажатии Enter переходим на страницу поиска
-		  searchInput.addEventListener('keydown', (e) => {
-			if (e.key === 'Enter') {
-			  const query = searchInput.value.trim();
-			  if (query) {
-				window.location.href = `/pages/search.html?q=${encodeURIComponent(query)}`;
-			  }
-			}
-		  });
-		  
-		  // При клике на иконку поиска тоже переходим
-		  const searchIcon = document.querySelector('.search-wrap svg');
-		  if (searchIcon) {
-			searchIcon.style.cursor = 'pointer';
-			searchIcon.addEventListener('click', () => {
-			  const query = searchInput.value.trim();
-			  if (query) {
-				window.location.href = `/pages/search.html?q=${encodeURIComponent(query)}`;
-			  }
-			});
-		  }
-		}
-
-    function searchTracks(query) {
-      fetch(`/api/tracks?search=${encodeURIComponent(query)}`)
-        .then(response => response.json())
-        .then(tracks => {
-          displayTracks(tracks);
-        })
-        .catch(error => console.error('Ошибка поиска:', error));
+    function setupSearch() {
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const query = searchInput.value.trim();
+          if (query) window.location.href = `/pages/search.html?q=${encodeURIComponent(query)}`;
+        }
+      });
+      const searchIcon = document.querySelector('.search-wrap svg');
+      if (searchIcon) {
+        searchIcon.style.cursor = 'pointer';
+        searchIcon.addEventListener('click', () => {
+          const query = searchInput.value.trim();
+          if (query) window.location.href = `/pages/search.html?q=${encodeURIComponent(query)}`;
+        });
+      }
     }
 
-    // Плеер
     function setupPlayer() {
       const audioPlayer = document.getElementById('audioPlayer');
-      
       audioPlayer.addEventListener('timeupdate', () => {
         const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
         document.getElementById('progressFill').style.width = progress + '%';
       });
-
-      audioPlayer.addEventListener('ended', () => {
-        playerControls.next();
-      });
-
+      audioPlayer.addEventListener('ended', () => playerControls.next());
       audioPlayer.addEventListener('play', () => {
-        document.getElementById('playIcon').innerHTML = 
-          '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+        document.getElementById('playIcon').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
       });
-
       audioPlayer.addEventListener('pause', () => {
-        document.getElementById('playIcon').innerHTML = 
-          '<path d="M8 5v14l11-7z"/>';
+        document.getElementById('playIcon').innerHTML = '<path d="M8 5v14l11-7z"/>';
       });
     }
 
     const playerControls = {
       playTrack(trackId, filePath, title, artist) {
         const audioPlayer = document.getElementById('audioPlayer');
-        
-        // Добавляем в плейлист
         const trackExists = playlist.find(t => t.id === trackId);
-        if (!trackExists) {
-          playlist.push({ id: trackId, filePath, title, artist });
-        }
-        
+        if (!trackExists) playlist.push({ id: trackId, filePath, title, artist });
         currentTrackIndex = playlist.findIndex(t => t.id === trackId);
         audioPlayer.src = filePath;
         audioPlayer.play();
-        
         document.getElementById('playerTrackName').textContent = title || 'Неизвестный трек';
         document.getElementById('playerArtistName').textContent = artist || 'Неизвестный исполнитель';
-        
-        // Увеличиваем счетчик прослушиваний
         fetch('/api/track/play', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({ track_id: trackId })
         });
       },
-
       togglePlay() {
         const audioPlayer = document.getElementById('audioPlayer');
-        if (audioPlayer.paused) {
-          audioPlayer.play();
-        } else {
-          audioPlayer.pause();
-        }
+        audioPlayer.paused ? audioPlayer.play() : audioPlayer.pause();
       },
-
       next() {
         if (playlist.length === 0) return;
         currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
         const track = playlist[currentTrackIndex];
         this.playTrack(track.id, track.filePath, track.title, track.artist);
       },
-
       previous() {
         if (playlist.length === 0) return;
         currentTrackIndex = currentTrackIndex <= 0 ? playlist.length - 1 : currentTrackIndex - 1;
         const track = playlist[currentTrackIndex];
         this.playTrack(track.id, track.filePath, track.title, track.artist);
       },
-
       seek(event) {
         const audioPlayer = document.getElementById('audioPlayer');
         const progressBar = event.currentTarget;
@@ -698,7 +607,6 @@
         const percent = (event.clientX - rect.left) / rect.width;
         audioPlayer.currentTime = percent * audioPlayer.duration;
       },
-
       setVolume(event) {
         const audioPlayer = document.getElementById('audioPlayer');
         const volumeBar = event.currentTarget;
@@ -709,39 +617,11 @@
       }
     };
 
-    // Вспомогательные функции
     function escapeHtml(text) {
       const div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
     }
-
-    function debounce(func, wait) {
-      let timeout;
-      return function executedFunction(...args) {
-        const later = () => {
-          clearTimeout(timeout);
-          func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-      };
-    }
-
-    // Обработка кликов на карточки треков для воспроизведения
-    document.addEventListener('click', (e) => {
-      const trackCard = e.target.closest('.card-track');
-      if (trackCard && !e.target.closest('a')) {
-        e.preventDefault();
-        const trackId = trackCard.dataset.trackId;
-        if (trackId && allTracks.length > 0) {
-          const track = allTracks.find(t => t.id == trackId);
-          if (track) {
-            playerControls.playTrack(track.id, track.file_path, track.title, track.artist);
-          }
-        }
-      }
-    });
   </script>
 </body>
 </html>

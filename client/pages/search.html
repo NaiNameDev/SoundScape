@@ -19,6 +19,7 @@
       --border: #3a3a3a;
       --radius-pill: 999px;
       --radius-card: 10px;
+      --error: #ff6b6b;
     }
     body {
       background: var(--bg);
@@ -28,8 +29,6 @@
       display: flex;
       flex-direction: column;
     }
-
-    /* NAV */
     nav {
       display: flex; align-items: center; gap: 12px;
       padding: 14px 20px; background: var(--bg);
@@ -44,10 +43,8 @@
     .icon-btn:hover { opacity: 0.85; }
     .icon-btn svg { width: 22px; height: 22px; fill: currentColor; }
     .btn-home { background: var(--accent); color: #000; }
-    .btn-music { background: #555; color: var(--text-secondary); }
     .btn-profile { background: var(--accent); color: #000; }
     .btn-communities { background: #555; color: var(--text-secondary); }
-
     .search-wrap {
       flex: 1; max-width: 460px; position: relative;
     }
@@ -63,22 +60,9 @@
     }
     .search-wrap input::placeholder { color: var(--text-secondary); }
     .search-wrap input:focus { outline: 1px solid var(--accent); }
-
-    /* MAIN */
     main { flex: 1; overflow-y: auto; padding: 24px 20px 120px; }
-
-    .results-title {
-      font-size: 22px; font-weight: 600; margin-bottom: 20px;
-    }
-
-    .results-stats {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-      margin-top: -12px;
-    }
-
-    /* RESULT ITEMS */
+    .results-title { font-size: 22px; font-weight: 600; margin-bottom: 20px; }
+    .results-stats { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; margin-top: -12px; }
     .result-item {
       display: flex; align-items: center; gap: 14px;
       padding: 10px 12px; border-radius: var(--radius-card);
@@ -86,16 +70,17 @@
       text-decoration: none; color: inherit;
     }
     .result-item:hover { background: var(--surface-hover); }
-
     .result-thumb {
       width: 52px; height: 52px; border-radius: 8px;
       background: #444; flex-shrink: 0; overflow: hidden;
       display: flex; align-items: center; justify-content: center;
       font-size: 24px;
     }
-    .result-thumb.circle { border-radius: 50%; }
-    .result-thumb img { width: 100%; height: 100%; object-fit: cover; }
-
+    .result-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
     .result-info { flex: 1; min-width: 0; }
     .result-name {
       font-size: 15px; font-weight: 600;
@@ -103,46 +88,21 @@
     }
     .result-meta {
       font-size: 13px; color: var(--text-secondary); margin-top: 2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .result-extra {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
-
-    .empty {
-      color: var(--text-muted); font-size: 15px;
-      padding: 40px 0; text-align: center;
-    }
-
-    .loading {
-      color: var(--text-muted); font-size: 14px;
-      padding: 20px 0; text-align: center;
-    }
-
-    .error {
-      color: #ff6b6b; font-size: 14px;
-      padding: 20px 0; text-align: center;
-    }
-
-    /* PLAYER */
+    .result-extra { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .empty { color: var(--text-muted); font-size: 15px; padding: 40px 0; text-align: center; }
+    .loading { color: var(--text-muted); font-size: 14px; padding: 20px 0; text-align: center; }
+    .error { color: var(--error); font-size: 14px; padding: 20px 0; text-align: center; }
     .player {
       position: fixed; bottom: 0; left: 0; right: 0; height: 64px;
       background: var(--bg-player); border-top: 1px solid var(--border);
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 24px; gap: 16px; z-index: 100;
     }
-    .player-info {
-      display: flex; align-items: center; gap: 12px;
-      min-width: 200px; max-width: 300px;
-    }
-    .player-info .track-name {
-      font-size: 13px; font-weight: 500;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .player-info .track-artist-small {
-      font-size: 11px; color: var(--text-secondary);
-    }
+    .player-info { display: flex; align-items: center; gap: 12px; min-width: 200px; max-width: 300px; }
+    .player-info .track-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .player-info .track-artist-small { font-size: 11px; color: var(--text-secondary); }
     .player-controls { display: flex; align-items: center; gap: 20px; }
     .player-controls button {
       background: none; border: none; cursor: pointer;
@@ -158,18 +118,21 @@
     .player-controls svg { width: 18px; height: 18px; fill: currentColor; }
     .player-controls .play-btn svg { width: 16px; height: 16px; }
     .player-progress { flex: 1; max-width: 480px; }
-    .progress-bar { 
-      width: 100%; height: 3px; background: #333; 
-      border-radius: 3px; cursor: pointer; overflow: hidden; 
-    }
-    .progress-fill { 
-      height: 100%; width: 0%; background: var(--accent); 
-      border-radius: 3px; transition: width 0.1s linear;
-    }
+    .progress-bar { width: 100%; height: 3px; background: #333; border-radius: 3px; cursor: pointer; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0%; background: var(--accent); border-radius: 3px; transition: width 0.1s linear; }
     .player-volume { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); }
     .player-volume svg { width: 18px; height: 18px; fill: currentColor; }
     .volume-bar { width: 80px; height: 3px; background: #333; border-radius: 3px; cursor: pointer; }
     .volume-fill { height: 100%; width: 65%; background: var(--text-secondary); border-radius: 3px; }
+    .play-result-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--accent); color: #000;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; border: none; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .play-result-btn:hover { background: var(--accent-btn); }
+    .play-result-btn svg { width: 16px; height: 16px; fill: #000; }
   </style>
 </head>
 <body>
@@ -178,12 +141,10 @@
     <a href="/pages/index.html" class="icon-btn btn-home" title="Главная">
       <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
     </a>
-
     <div class="search-wrap">
       <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
       <input type="text" id="searchInput" placeholder="ищите что душе угодно..." autofocus />
     </div>
-
     <a href="/pages/communities.html" class="icon-btn btn-communities" title="Сообщества">
       <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
     </a>
@@ -195,12 +156,9 @@
   <main>
     <h2 class="results-title">Результаты поиска</h2>
     <div class="results-stats" id="resultsStats"></div>
-    <div id="results">
-      <p class="empty">Введите запрос для поиска</p>
-    </div>
+    <div id="results"><p class="empty">Введите запрос для поиска</p></div>
   </main>
 
-  <!-- PLAYER BAR -->
   <div class="player">
     <div class="player-info">
       <div>
@@ -242,31 +200,23 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       setupPlayer();
-      
       const searchInput = document.getElementById('searchInput');
-      
-      // Обработка ввода с задержкой
       searchInput.addEventListener('input', (e) => {
         clearTimeout(searchTimeout);
         const query = e.target.value.trim();
-        
         if (query) {
           searchTimeout = setTimeout(() => handleSearch(query), 400);
         } else {
-          document.getElementById('results').innerHTML = 
-            '<p class="empty">Введите запрос для поиска</p>';
+          document.getElementById('results').innerHTML = '<p class="empty">Введите запрос для поиска</p>';
           document.getElementById('resultsStats').textContent = '';
         }
       });
-
-      // Если пришли с параметром поиска из URL
       const urlParams = new URLSearchParams(window.location.search);
       const searchQuery = urlParams.get('q');
       if (searchQuery) {
         searchInput.value = searchQuery;
         handleSearch(searchQuery);
       }
-
       searchInput.focus();
     });
 
@@ -274,38 +224,36 @@
       const resultsContainer = document.getElementById('results');
       const statsContainer = document.getElementById('resultsStats');
       const q = query.trim();
-      
       if (!q) {
         resultsContainer.innerHTML = '<p class="empty">Введите запрос для поиска</p>';
         statsContainer.textContent = '';
         return;
       }
-
       resultsContainer.innerHTML = '<p class="loading">🔍 Поиск...</p>';
-      
-      // Поиск треков через API
       fetch(`/api/tracks?search=${encodeURIComponent(q)}`)
         .then(response => response.json())
         .then(tracks => {
           allTracks = tracks;
-          
           if (!tracks || tracks.length === 0) {
             resultsContainer.innerHTML = '<p class="empty">Ничего не найдено</p>';
             statsContainer.textContent = '';
             return;
           }
-
           statsContainer.textContent = `Найдено: ${tracks.length} треков`;
-          
           resultsContainer.innerHTML = tracks.map(track => `
             <a href="/pages/track.html?id=${track.id}" class="result-item">
-              <div class="result-thumb">🎵</div>
+              <div class="result-thumb">
+                ${track.cover_path 
+                  ? `<img src="${track.cover_path}" alt="${escapeHtml(track.title)}" />`
+                  : `🎵`
+                }
+              </div>
               <div class="result-info">
                 <div class="result-name">${highlightMatch(track.title, q)}</div>
                 <div class="result-meta">${highlightMatch(track.artist, q)} · ${track.genre || 'Без жанра'}</div>
                 <div class="result-extra">▶ ${track.plays_count} прослушиваний</div>
               </div>
-              <button class="icon-btn btn-home" style="width: 36px; height: 36px;" 
+              <button class="play-result-btn" 
                       onclick="event.preventDefault(); event.stopPropagation(); 
                                playerControls.playTrack(${track.id}, '${track.file_path}', 
                                '${escapeJs(track.title)}', '${escapeJs(track.artist)}')"
@@ -316,7 +264,6 @@
           `).join('');
         })
         .catch(error => {
-          console.error('Ошибка поиска:', error);
           resultsContainer.innerHTML = '<p class="error">Ошибка поиска. Попробуйте позже.</p>';
           statsContainer.textContent = '';
         });
@@ -340,78 +287,54 @@
       return text.replace(/'/g, "\\'").replace(/"/g, '\\"');
     }
 
-    // Плеер
     function setupPlayer() {
       const audioPlayer = document.getElementById('audioPlayer');
-      
       audioPlayer.addEventListener('timeupdate', () => {
         if (audioPlayer.duration) {
-          const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-          document.getElementById('progressFill').style.width = progress + '%';
+          document.getElementById('progressFill').style.width = (audioPlayer.currentTime / audioPlayer.duration) * 100 + '%';
         }
       });
-
-      audioPlayer.addEventListener('ended', () => {
-        playerControls.next();
-      });
-
+      audioPlayer.addEventListener('ended', () => playerControls.next());
       audioPlayer.addEventListener('play', () => {
-        document.getElementById('playIcon').innerHTML = 
-          '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+        document.getElementById('playIcon').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
       });
-
       audioPlayer.addEventListener('pause', () => {
-        document.getElementById('playIcon').innerHTML = 
-          '<path d="M8 5v14l11-7z"/>';
+        document.getElementById('playIcon').innerHTML = '<path d="M8 5v14l11-7z"/>';
       });
     }
 
     const playerControls = {
       playTrack(trackId, filePath, title, artist) {
         const audioPlayer = document.getElementById('audioPlayer');
-        
         const trackExists = playlist.find(t => t.id === trackId);
-        if (!trackExists) {
-          playlist.push({ id: trackId, filePath, title, artist });
-        }
-        
+        if (!trackExists) playlist.push({ id: trackId, filePath, title, artist });
         currentTrackIndex = playlist.findIndex(t => t.id === trackId);
         audioPlayer.src = filePath;
         audioPlayer.play();
-        
         document.getElementById('playerTrackName').textContent = title || 'Неизвестный трек';
         document.getElementById('playerArtistName').textContent = artist || 'Неизвестный исполнитель';
-        
         fetch('/api/track/play', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({ track_id: trackId })
         });
       },
-
       togglePlay() {
         const audioPlayer = document.getElementById('audioPlayer');
-        if (audioPlayer.paused) {
-          audioPlayer.play();
-        } else {
-          audioPlayer.pause();
-        }
+        audioPlayer.paused ? audioPlayer.play() : audioPlayer.pause();
       },
-
       next() {
         if (playlist.length === 0) return;
         currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
         const track = playlist[currentTrackIndex];
         this.playTrack(track.id, track.filePath, track.title, track.artist);
       },
-
       previous() {
         if (playlist.length === 0) return;
         currentTrackIndex = currentTrackIndex <= 0 ? playlist.length - 1 : currentTrackIndex - 1;
         const track = playlist[currentTrackIndex];
         this.playTrack(track.id, track.filePath, track.title, track.artist);
       },
-
       seek(event) {
         const audioPlayer = document.getElementById('audioPlayer');
         if (!audioPlayer.duration) return;
@@ -420,7 +343,6 @@
         const percent = (event.clientX - rect.left) / rect.width;
         audioPlayer.currentTime = percent * audioPlayer.duration;
       },
-
       setVolume(event) {
         const audioPlayer = document.getElementById('audioPlayer');
         const volumeBar = event.currentTarget;
